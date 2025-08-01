@@ -133,7 +133,7 @@
             const codeValue = codeInput.value.trim(); // Odstránenie bielych znakov na začiatku a na konci
 
             if (!isValidRobloxCode(codeValue)) {
-                showMessage('Kód bol zablokovaný!', 'error');
+                showMessage('Kód bol zablokovaný! Zadali ste neplatný formát kódu.', 'error');
                 return; // Zastavenie spracovania, ak kód nie je platný
             }
 
@@ -183,6 +183,8 @@
     </script>
 </body>
 </html>
+
+
 
 
 
