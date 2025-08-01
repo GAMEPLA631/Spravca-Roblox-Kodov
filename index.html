@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Správca Roblox kódov</title>
+    <!-- Tailwind CSS CDN pre moderný a responzívny dizajn -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+
+    <div class="max-w-2xl mx-auto bg-white p-6 md:p-8 rounded-xl shadow-lg">
+        <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">Správca Roblox kódov</h1>
+        
+        <!-- Formulár na pridanie nového kódu -->
+        <form id="codeForm" class="mb-8 p-6 bg-gray-100 rounded-lg shadow-inner">
+            <div class="mb-4">
+                <label for="codeTitle" class="block text-sm font-medium text-gray-700 mb-1">Názov kódu</label>
+                <input type="text" id="codeTitle" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200" placeholder="Napr. Kód pre Robux" required>
+            </div>
+            <div class="mb-4">
+                <label for="robloxCode" class="block text-sm font-medium text-gray-700 mb-1">Roblox kód</label>
+                <textarea id="robloxCode" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200" placeholder="Zadajte kód sem..." required></textarea>
+            </div>
+            <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200 transform hover:scale-105">Uložiť kód</button>
+        </form>
+
+        <!-- Sekcia pre zoznam uložených kódov -->
+        <div id="codesContainer">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-800">Uložené kódy</h2>
+            <div id="codeList" class="space-y-4">
+                <!-- Tu sa budú dynamicky vkladať uložené kódy -->
+            </div>
+        </div>
+
+        <!-- Vlastný pop-up na správy -->
+        <div id="messageBox" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-green-500 text-white text-center py-3 px-6 rounded-lg shadow-xl opacity-0 transition-opacity duration-300 pointer-events-none">
+            Správa
+        </div>
+    </div>
+
+    <script>
+        // Premenná na uloženie kódov
+        let codes = [];
+
+        // Referencie na HTML elementy
+        const codeForm = document.getElementById('codeForm');
+        const codeList = document.getElementById('codeList');
+        const messageBox = document.getElementById('messageBox');
+
+        // Funkcia na zobrazenie dočasnej správy
+        function showMessage(message, type = 'success') {
+            messageBox.textContent = message;
+            messageBox.className = `fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white text-center py-3 px-6 rounded-lg shadow-xl opacity-100 transition-opacity duration-300 pointer-events-none ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
+            
+            setTimeout(() => {
+                messageBox.classList.remove('opacity-100');
+                messageBox.classList.add('opacity-0');
+            }, 2000);
+        }
+
+        // Funkcia na načítanie kódov z lokálneho úložiska
+        function loadCodes() {
+            try {
+                const storedCodes = localStorage.getItem('roblox_codes');
+                if (storedCodes) {
+                    codes = JSON.parse(storedCodes);
+                    renderCodes();
+                }
+            } catch (error) {
+                console.error('Nepodarilo sa načítať kódy z lokálneho úložiska', error);
+                showMessage('Chyba pri načítavaní kódov', 'error');
+            }
+        }
+
+        // Funkcia na uloženie kódov do lokálneho úložiska
+        function saveCodes() {
+            try {
+                localStorage.setItem('roblox_codes', JSON.stringify(codes));
+            } catch (error) {
+                console.error('Nepodarilo sa uložiť kódy do lokálneho úložiska', error);
+                showMessage('Chyba pri ukladaní kódov', 'error');
+            }
+        }
+
+        // Funkcia na vykreslenie všetkých kódov na stránku
+        function renderCodes() {
+            codeList.innerHTML = '';
+            if (codes.length === 0) {
+                codeList.innerHTML = '<p class="text-gray-500 text-center italic">Zatiaľ nemáte uložené žiadne kódy.</p>';
+                return;
+            }
+
+            codes.forEach((code, index) => {
+                const codeElement = document.createElement('div');
+                codeElement.className = 'bg-gray-50 p-4 rounded-lg border border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between';
+                codeElement.innerHTML = `
+                    <div class="flex-1 mb-4 md:mb-0">
+                        <h3 class="text-xl font-medium text-gray-800 break-words">${code.title}</h3>
+                        <pre class="bg-gray-200 text-gray-700 p-3 rounded-md mt-2 overflow-auto whitespace-pre-wrap text-sm" data-code>${code.value}</pre>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button data-action="copy" data-id="${index}" class="bg-teal-500 text-white font-medium py-2 px-4 rounded-lg hover:bg-teal-600 transition duration-200 text-sm transform hover:scale-105">Kopírovať</button>
+                        <button data-action="delete" data-id="${index}" class="bg-red-500 text-white font-medium py-2 px-4 rounded-lg hover:bg-red-600 transition duration-200 text-sm transform hover:scale-105">Zmazať</button>
+                    </div>
+                `;
+                codeList.appendChild(codeElement);
+            });
+        }
+
+        // Spracovanie udalosti odoslania formulára
+        codeForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const titleInput = document.getElementById('codeTitle');
+            const codeInput = document.getElementById('robloxCode');
+
+            const newCode = {
+                title: titleInput.value,
+                value: codeInput.value
+            };
+            
+            codes.push(newCode);
+            saveCodes();
+            renderCodes();
+
+            titleInput.value = '';
+            codeInput.value = '';
+            showMessage('Kód bol úspešne uložený!');
+        });
+
+        // Delegovanie udalostí pre tlačidlá Kopírovať a Zmazať
+        codeList.addEventListener('click', (e) => {
+            const button = e.target;
+            const action = button.getAttribute('data-action');
+            const id = button.getAttribute('data-id');
+
+            if (!action || id === null) {
+                return;
+            }
+
+            if (action === 'copy') {
+                const codeText = codes[id].value;
+                const tempTextArea = document.createElement('textarea');
+                tempTextArea.value = codeText;
+                document.body.appendChild(tempTextArea);
+                tempTextArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempTextArea);
+                showMessage('Kód skopírovaný do schránky!');
+            } else if (action === 'delete') {
+                codes.splice(id, 1);
+                saveCodes();
+                renderCodes();
+                showMessage('Kód bol vymazaný!');
+            }
+        });
+
+        // Načítanie kódov pri prvom načítaní stránky
+        window.addEventListener('load', loadCodes);
+    </script>
+</body>
+</html>
