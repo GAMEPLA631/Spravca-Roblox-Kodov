@@ -91,6 +91,14 @@
             }
         }
 
+        // Funkcia na overenie formátu Roblox kódu
+        function isValidRobloxCode(code) {
+            // Jednoduchá validácia, ktorá kontroluje veľké písmená, čísla a pomlčky.
+            // Dĺžka kódu musí byť aspoň 4 znaky.
+            const regex = /^[A-Z0-9-]{4,50}$/;
+            return regex.test(code);
+        }
+
         // Funkcia na vykreslenie všetkých kódov na stránku
         function renderCodes() {
             codeList.innerHTML = '';
@@ -122,10 +130,16 @@
             
             const titleInput = document.getElementById('codeTitle');
             const codeInput = document.getElementById('robloxCode');
+            const codeValue = codeInput.value.trim(); // Odstránenie bielych znakov na začiatku a na konci
+
+            if (!isValidRobloxCode(codeValue)) {
+                showMessage('Kód bol zablokovaný!', 'error');
+                return; // Zastavenie spracovania, ak kód nie je platný
+            }
 
             const newCode = {
                 title: titleInput.value,
-                value: codeInput.value
+                value: codeValue
             };
             
             codes.push(newCode);
@@ -169,6 +183,8 @@
     </script>
 </body>
 </html>
+
+
 
 
 
