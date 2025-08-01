@@ -93,10 +93,9 @@
 
         // Funkcia na overenie formátu Roblox kódu
         function isValidRobloxCode(code) {
-            // Jednoduchá validácia, ktorá kontroluje veľké písmená, čísla a pomlčky.
-            // Dĺžka kódu musí byť aspoň 4 znaky.
-            const regex = /^[A-Z0-9-]{4,50}$/;
-            return regex.test(code);
+            // Táto jednoduchá validácia iba skontroluje, či kód nie je príliš krátky.
+            // Pôvodná validácia bola príliš prísna a blokovala platné skripty.
+            return code.length > 3;
         }
 
         // Funkcia na vykreslenie všetkých kódov na stránku
@@ -133,7 +132,7 @@
             const codeValue = codeInput.value.trim(); // Odstránenie bielych znakov na začiatku a na konci
 
             if (!isValidRobloxCode(codeValue)) {
-                showMessage('Kód bol zablokovaný! Zadali ste neplatný formát kódu.', 'error');
+                showMessage('Kód bol zablokovaný! Kód je príliš krátky.', 'error');
                 return; // Zastavenie spracovania, ak kód nie je platný
             }
 
@@ -183,6 +182,7 @@
     </script>
 </body>
 </html>
+
 
 
 
